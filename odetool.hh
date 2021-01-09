@@ -6,10 +6,10 @@
 
 namespace odetool {
 
-    typedef double                                            odefloat;
-    typedef std::vector<odefloat>                             list_odefloat;
-    typedef std::vector<std::vector<odefloat>>                list_list_odefloat;
-    typedef std::vector<odefloat(*)(list_odefloat, odefloat)> list_odefunction;
+    typedef double                                                    odefloat;
+    typedef std::vector<odefloat>                                     list_odefloat;
+    typedef std::vector<std::vector<odefloat>>                        list_list_odefloat;
+    typedef std::vector<odefloat(*)(list_odefloat, odefloat, size_t)> list_odefunction;
 
     inline list_odefloat DiscretizeX(const odefloat& x_begin, const odefloat& x_end, const odefloat& h) {
         size_t n = (x_end - x_begin) / h + 1;
@@ -51,7 +51,7 @@ namespace odetool {
             }
 #pragma omp parallel for
             for (size_t i = 0; i < eqn.size(); ++i) {
-                k[0][i] = eqn[i](temp_y[0], x[n]) * h;
+                k[0][i] = eqn[i](temp_y[0], x[n], i) * h;
             }
 
 #pragma omp parallel for
@@ -60,7 +60,7 @@ namespace odetool {
             }
 #pragma omp parallel for
             for (size_t i = 0; i < eqn.size(); ++i) {
-                k[1][i] = eqn[i](temp_y[1], x[n] + 0.5 * h) * h;
+                k[1][i] = eqn[i](temp_y[1], x[n] + 0.5 * h, i) * h;
             }
 
 #pragma omp parallel for
@@ -69,7 +69,7 @@ namespace odetool {
             }
 #pragma omp parallel for
             for (size_t i = 0; i < eqn.size(); ++i) {
-                k[2][i] = eqn[i](temp_y[2], x[n] + 0.5 * h) * h;
+                k[2][i] = eqn[i](temp_y[2], x[n] + 0.5 * h, i) * h;
             }
 
 #pragma omp parallel for
@@ -78,7 +78,7 @@ namespace odetool {
             }
 #pragma omp parallel for
             for (size_t i = 0; i < eqn.size(); ++i) {
-                k[3][i] = eqn[i](temp_y[3], x[n] + h) * h;
+                k[3][i] = eqn[i](temp_y[3], x[n] + h, i) * h;
             }
 
 #pragma omp parallel for
